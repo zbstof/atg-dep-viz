@@ -2,60 +2,31 @@
 <html>
     <head>
         <title>Building dependency graph</title>
-        <script src="js/sigma.min.js" type="text/javascript"></script>
-        <script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="css/fs.css"/>
     </head>
     <body>
-<input type="file" id="files" name="files[]" multiple />
-<output >
-    <ul id="list">
-    </ul>
-</output>
+        <h2>Select .classpath file(s) for parsing</h2>
+        <input type="file" id="files" name="files[]" multiple />
+        <output >
+            <ul id="list">
+            </ul>
+        </output>
 
-<script>
-  function handleFileSelect(evt) {
-    var files = evt.target.files; // FileList object
+        <h2>Drag-and-Drop main src folder to see parsed output:</h2>
 
-    // Loop through the FileList and render image files as thumbnails.
-    for (var i = 0, f; f = files[i]; i++) {
+        <div class="example">
+            <div id="drop_zone">Drop files here</div>
+        </div>
+        <output id="parseList"></output>
 
-      var reader = new FileReader();
 
-      // Closure to capture the file information.
-      reader.onload = (function(theFile) {
-        return function(e) {
-          // Render thumbnail.
-          var li = document.createElement('li');
-          $(li).text(e.target.result);
-          $("#list").before(li);
-          var xmlDoc = $.parseXML(e.target.result);
-          console.log(xmlDoc);
-          var xml = $("classpathentry", xmlDoc);
-          // all modules
-          var paths = []
-          $.each(xml, function(i, el) { 
-              if(el.getAttribute("kind") === "var") 
-                paths.push(el.getAttribute("path"))
-              });
-          // our modules
-          var fpaths = paths.filter(function(el) { 
-              var pos = el.indexOf("kf/atg/module") !== -1 })
-          console.log(fpaths);
-        };
-      })(f);
+        <script src="//code.jquery.com/jquery-latest.js"></script>
+        <script>window.jQuery || document.write('<script src="js/jquery.js"><\/script>')</script>
 
-      // Read in the image file as a data URL.
-      reader.readAsText(f);
-    }
-  }
+        <script src="//sigmajs.org/js/sigma.min.js"></script>
+        <script>window.sigma || document.write('<script src="js/sigma.min.js"><\/script>')</script>
 
-function getFilteredPaths(paths) {
-    return paths.filter(function(el) { return el.contains("kf/atg/module") })
-    
-}
-
-  document.getElementById('files').addEventListener('change', handleFileSelect, false);
-</script>
+        <script src="js/dnd.js"></script>
     </body>
 </html>
 
