@@ -9,7 +9,7 @@ parser = etree.XMLParser(remove_blank_text=True)
 
 
 def replacePrefs(tree):
-    prefs_list = ['agent', 'kf']
+    prefs_list = ['agent', 'kf', 'tp']
     for pref in prefs_list:
         replaceMatching(tree, pref)
 
