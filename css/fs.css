@@ -11,7 +11,6 @@
     border-radius: 5px;
     color: #bbb;
 }
-
 .sigma-parent {
     border-radius: 4px;
     -moz-border-radius: 4px;
@@ -22,12 +21,4 @@
 .sigma-expand {
     width: 100%;
     height: 100%;
-}
-.dep-right {
-    float: right;
-    width: 50%;
-}
-.dep-left {
-    float: left;
-    width: 50%;
 }

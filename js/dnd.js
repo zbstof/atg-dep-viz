@@ -10,6 +10,7 @@ function handleFileSelect(evt) {
 
     var KITSDir = evt.dataTransfer.items[0];
     entry = KITSDir.webkitGetAsEntry();
+    
     traverseFileTree(entry);
 
     // wait for files to load and parse
@@ -18,6 +19,10 @@ function handleFileSelect(evt) {
 
 function buildGraph() {
     console.log(JSON.stringify(edgesMap));
+    if($.isEmptyObject(edgesMap)) {
+        document.write("<h1>No projects found. Try to run 'buildr eclipse force=true' in root catalog</h1>");
+        return;
+    }
     $.each(edgesMap, 
             function(node, deps) {
                 sigInst.addNode(node, { 'x': Math.random(), 'y': Math.random() });
@@ -48,6 +53,7 @@ function buildGraph() {
         sigInst.dropNode(node.id);
     });
 
+    // log info about modules that are not on the graph
     $.each(noDepNodes, function(i, node) {
         $("#noDep").append('<li>'+node+'</li>');
     });
@@ -59,7 +65,7 @@ function buildGraph() {
     sigInst.startForceAtlas2();
     setTimeout(function(){
         sigInst.stopForceAtlas2();
-    }, 3000);
+    }, 4000);
 }
 
 function init() {
