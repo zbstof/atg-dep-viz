@@ -5,28 +5,27 @@
         <link rel="stylesheet" type="text/css" href="css/fs.css"/>
     </head>
     <body>
-        <div id="sig" height="500"></div>
-        <h2>Select .classpath file(s) for parsing</h2>
-        <input type="file" id="files" name="files[]" multiple />
-        <output >
-            <ul id="list">
-            </ul>
-        </output>
-
-        <h2>Drag-and-Drop main src folder to see parsed output:</h2>
-
-        <div class="example">
-            <div id="drop_zone">Drop files here</div>
+        <div id="prompt">
+            <h3></h3>
+            <div class="example">
+                <div id="drop_zone">Drag-and-Drop KITS src folder to see parsed output</div>
+            </div>
         </div>
-        <output id="parseList"></output>
+        <div id="graph">
+            <button class="btn" id="stop-layout">Stop Layout</button>
+            <button class="btn" id="rescale-graph">Rescale Graph</button>
+            <div class="sigma-parent">
+                <div class="sigma-expand" id="sig"></div>
+            </div>
+        </div>
 
-
-        <script src="//code.jquery.com/jquery-latest.js"></script>
+        <script src="//code.jquery.com/jquery-latest.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/jquery.js"><\/script>')</script>
 
         <script src="//sigmajs.org/js/sigma.min.js"></script>
-        <script>window.sigma || document.write('<script src="js/sigma.min.js"><\/script>')</script>
+        <script>window.sigma || document.write('<script src="js/sigma.concat.js"><\/script>')</script>
 
+        <script src="js/sigma.forceatlas2.js"></script>
         <script src="js/dnd.js"></script>
     </body>
 </html>
