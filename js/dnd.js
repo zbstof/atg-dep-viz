@@ -1,6 +1,7 @@
 var sigInst = null;
-var edgesMap = {};
-var removedNodes = [];
+var edgesMap = null;
+var removedNodes = null;
+var noDepNodes = null;
 
 function handleFileSelect(evt) {
     evt.preventDefault();
@@ -8,53 +9,67 @@ function handleFileSelect(evt) {
     init();
 
     var KITSDir = evt.dataTransfer.items[0];
-
     entry = KITSDir.webkitGetAsEntry();
     traverseFileTree(entry);
 
     // wait for files to load and parse
-    setTimeout(function() {
-        console.log(JSON.stringify(edgesMap));
-        $.each(edgesMap, 
+    setTimeout(buildGraph, 500);
+}
+
+function buildGraph() {
+    console.log(JSON.stringify(edgesMap));
+    $.each(edgesMap, 
             function(node, deps) {
                 sigInst.addNode(node, { 'x': Math.random(), 'y': Math.random() });
             });
 
-        $.each(edgesMap, 
+    $.each(edgesMap, 
             function(node, deps) {
                 $.each(deps, function (i, dep){
                     sigInst.addEdge(node + "_" + dep, node, dep);
                 });
             });
 
-        colorMap = {"kf": "blue", "agent": "green", "tp": "orange", "agentws": "green"};
-        sigInst.iterNodes(function (node) {
-            console.log(node.id, node);
-            node.size = node.inDegree/2 + node.outDegree/2 + 5; // proportional to importance
-            node.color = colorMap[node.id.split('-')[0]];
-        });
+    colorMap = {"kf": "blue", "agent": "green", "tp": "orange", "agentws": "green"};
+    sigInst.iterNodes(function (node) {
+        console.log(node.id, node);
+        node.size = node.inDegree/2 + node.outDegree/2 + 5; // proportional to importance
+        node.color = colorMap[node.id.split('-')[0]];
+    });
 
-        sigInst.startForceAtlas2();
-        // stop and redraw
-        setTimeout(function(){
-            sigInst.stopForceAtlas2();
+    // if we don't remove these, layout engine is acting up
+    sigInst.iterNodes(function (node) {
+        if (node.outDegree === 0 && node.inDegree === 0) {
+            console.log(node);
+            removedNodes.push(node);
+        };
+    });
+    $.each(removedNodes, function (i, node) {
+        sigInst.dropNode(node.id);
+    });
 
-            sigInst.iterNodes(function (node) {
-                if (node.outDegree === 0 && node.inDegree === 0) {
-                    console.log(node);
-                    removedNodes.push(node);
-                };
-            });
-            $.each(removedNodes, function (i, node) {
-                sigInst.dropNode(node.id);
-            });
-        }, 3000);
-    }, 1000);
+    $.each(noDepNodes, function(i, node) {
+        $("#noDep").append('<li>'+node+'</li>');
+    });
+
+    $.each(removedNodes, function(i, node) {
+        $("#removed").append('<li>'+node.id+'</li>');
+    });
+
+    sigInst.startForceAtlas2();
+    setTimeout(function(){
+        sigInst.stopForceAtlas2();
+    }, 3000);
 }
 
 function init() {
     !sigInst || sigInst.emptyGraph();
     $("#sig").html("");
+    $("#removed").html("");
+    $("#noDep").html("");
+    edgesMap = {};
+    removedNodes = [];
+    noDepNodes = [];
 
     sigInst = sigma.init(document.getElementById('sig')).drawingProperties({ defaultLabelColor: '#fff', defaultNodeColor: '#333', defaultEdgeType: 'curve' });
 
@@ -71,7 +86,6 @@ function init() {
             } else {
                 e.hidden = 1;
             }
-
 
             if(nodes.indexOf(e.target)>=0){
                 e.color = "white";
@@ -104,8 +118,6 @@ function init() {
 function traverseFileTree(entry, path) {
     path = path || "";
     if (entry.isFile) {
-        //filterFiles = [".classpath", ".project"]; 
-        //return $.inArray(entry.name, filterFiles) >= 0;
         return entry.name === ".project";
     } else if (entry.isDirectory) {
         // Get folder contents
@@ -142,10 +154,23 @@ function getEntryByName(entries, name) {
     return entry;
 }
 
-function parseContent(file, func, path) {
-    var reader = new FileReader();
-    reader.onload = func;
-    reader.readAsText(file);
+function getName(classpathFile) {
+    return function (evt) {
+        var xmlDoc = $.parseXML(evt.target.result);
+        var name = $($("projectDescription > name", xmlDoc)[0]).text();
+        console.log(name);
+        
+        // now compile the list of dependencies for each node:
+        if (classpathFile) {
+            classpathFile.file(function(file) {
+                var reader = new FileReader();
+                reader.onload = getPaths(name);
+                reader.readAsText(file);
+            });
+        } else {
+            noDepNodes.push(name);
+        }
+    }
 }
 
 function getPaths(projectName) {
@@ -173,25 +198,6 @@ function getPaths(projectName) {
     }
 }
 
-function getName(classpathFile) {
-    return function (evt) {
-        var xmlDoc = $.parseXML(evt.target.result);
-        var name = $($("projectDescription > name", xmlDoc)[0]).text();
-        console.log(name);
-        //sigInst.addNode(name, { 'x': Math.random(), 'y': Math.random() });
-        
-        // now compile the list of dependencies for each node:
-        if (classpathFile) {
-            classpathFile.file(function(file) {
-                var reader = new FileReader();
-                reader.onload = getPaths(name);
-                reader.readAsText(file);
-            });
-        } 
-    }
-}
-
-//$("#drop_zone").bind({'dragover': handleDragOver, 'drop': handleFileSelect});
 var dropZone = document.getElementById('drop_zone');
 dropZone.addEventListener('dragover', 
 function handleDragOver(evt) {
@@ -199,19 +205,3 @@ function handleDragOver(evt) {
     evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 }, false);
 dropZone.addEventListener('drop', handleFileSelect, false);
-
-document.getElementById('rescale-graph').addEventListener('click',function(){
-    sigInst.position(0,0,1).draw();
-},true);
-var isRunning = false;
-document.getElementById('stop-layout').addEventListener('click',function(){
-    if(isRunning){
-        isRunning = false;
-        sigInst.stopForceAtlas2();
-        document.getElementById('stop-layout').childNodes[0].nodeValue = 'Start Layout';
-    }else{
-        isRunning = true;
-        sigInst.startForceAtlas2();
-        document.getElementById('stop-layout').childNodes[0].nodeValue = 'Stop Layout';
-    }
-},true);

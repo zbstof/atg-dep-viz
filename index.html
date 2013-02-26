@@ -5,25 +5,23 @@
         <link rel="stylesheet" type="text/css" href="css/fs.css"/>
     </head>
     <body>
-        <div id="prompt">
-            <h3></h3>
-            <div class="example">
-                <div id="drop_zone">Drag-and-Drop KITS src folder to see parsed output</div>
-            </div>
+        <div class="example">
+            <div id="drop_zone">Drag-and-Drop KITS src folder to see parsed output</div>
         </div>
-        <div id="graph">
-            <button class="btn" id="stop-layout">Stop Layout</button>
-            <button class="btn" id="rescale-graph">Rescale Graph</button>
-            <div class="sigma-parent">
-                <div class="sigma-expand" id="sig"></div>
-            </div>
+        <div class="sigma-parent">
+            <div class="sigma-expand" id="sig"></div>
+        </div>
+        <div class="dep-right">
+            <p>Modules without .classpath:</p>
+            <ul id="noDep"></ul>
+        </div>
+        <div class="dep-left">
+            <p>Modules without kf dependencies:</p>
+            <ul id="removed"></ul>
         </div>
 
-        <script src="//code.jquery.com/jquery-latest.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/jquery.js"><\/script>')</script>
-
-        <script src="//sigmajs.org/js/sigma.min.js"></script>
-        <script>window.sigma || document.write('<script src="js/sigma.concat.js"><\/script>')</script>
+        <script src="js/jquery.js"></script>
+        <script src="js/sigma.concat.js"></script>
 
         <script src="js/sigma.forceatlas2.js"></script>
         <script src="js/dnd.js"></script>

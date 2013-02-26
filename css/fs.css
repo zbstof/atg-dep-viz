@@ -1,24 +1,18 @@
 .example {
     padding: 10px;
-    border: 1px solid #CCC;
+    border: 1px solid #ccc;
 }
 #drop_zone {
-    padding: 20px 10px;
+    padding: 25px;
     text-align: center;
-}
-button {
-    padding: 5px 8px;
-    cursor: pointer;
-    text-shadow: 1px 1px white;
-    font-weight: 700;
-    font-size: 10pt;
-}
-body {
-    font: 14px Arial;
+    border: 2px dashed #bbb;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    color: #bbb;
 }
 
 .sigma-parent {
-    position: relative;
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -26,13 +20,14 @@ body {
     height: 500px;
 }
 .sigma-expand {
-    position: absolute;
     width: 100%;
     height: 100%;
-    top: 0;
-    left: 0;
 }
-.buttons-container{
-    padding-bottom: 8px;
-    padding-top: 12px;
+.dep-right {
+    float: right;
+    width: 50%;
+}
+.dep-left {
+    float: left;
+    width: 50%;
 }
